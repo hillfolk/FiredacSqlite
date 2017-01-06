@@ -11,26 +11,34 @@ uses
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, FireDAC.VCLUI.Wait,
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB,
   Vcl.Grids, Vcl.DBGrids, RzDBGrid, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  Vcl.StdCtrls, RzEdit, Vcl.Mask, RzButton;
+  Vcl.StdCtrls, RzEdit, Vcl.Mask, RzButton, FireDAC.VCLUI.Login, FireDAC.Comp.UI,
+  FireDAC.VCLUI.Async, Vcl.DBCtrls, Vcl.ExtCtrls;
 
 type
   TfxMain = class(TForm)
     FDConnection1: TFDConnection;
     FDPhysSQLiteDriverLink1: TFDPhysSQLiteDriverLink;
     FDTable1: TFDTable;
-    RzDBGrid1: TRzDBGrid;
     DataSource1: TDataSource;
     FDTable1NAME: TStringField;
     FDTable1AGE: TIntegerField;
-    RzMemo1: TRzMemo;
-    edDBPath: TRzEdit;
     btnCreate: TRzButton;
     btnActiveDB: TRzButton;
     FDTable1ID: TStringField;
-    edID: TRzEdit;
-    edAGE: TRzEdit;
-    edName: TRzEdit;
-    btnAddRecord: TRzButton;
+    FDGUIxLoginDialog1: TFDGUIxLoginDialog;
+    DBNavigator1: TDBNavigator;
+    DBMemo1: TDBMemo;
+    DBGrid1: TDBGrid;
+    DBEdit1: TDBEdit;
+    DBEdit2: TDBEdit;
+    FDTable1Desc: TMemoField;
+    DBEdit3: TDBEdit;
+    edDBPath: TEdit;
+    btnTableOpen: TButton;
+    DBListBox1: TDBListBox;
+    FDTable1CLASS: TStringField;
+    cbEnable: TDBCheckBox;
+    FDTable1Enable: TSmallintField;
     procedure btnCreateClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FDConnection1AfterConnect(Sender: TObject);
@@ -39,6 +47,7 @@ type
     procedure btnActiveDBClick(Sender: TObject);
     procedure DataSource1DataChange(Sender: TObject; Field: TField);
     procedure btnAddRecordClick(Sender: TObject);
+    procedure btnTableOpenClick(Sender: TObject);
   private
     { Private declarations }
     procedure Log(Log: string);
@@ -55,8 +64,8 @@ implementation
 
 procedure TfxMain.btnActiveDBClick(Sender: TObject);
 begin
+  FDTable1.CreateTable(True);
 
-  FDTable1.Open;
 
 end;
 
@@ -66,12 +75,6 @@ var
 begin
   FDTable1.SQL.Clear;
   SQL := '';
-  SQL := format('INSERT INTO FDPERSION VALUES("%s",%s,%d);',
-    [edID.Text, edName.Text, StrToInt(edAGE.Text)]);
-  FDTable1.SQL.Add(SQL);
-  FDTable1.ExecSQL;
-  FDTable1.Open;
-
 end;
 
 procedure TfxMain.btnCreateClick(Sender: TObject);
@@ -83,8 +86,13 @@ begin
     Params.Values['Database'] := edDBPath.Text + 'demo.sdb';
   end;
   FDConnection1.Connected := True;
-  FDTable1.CreateTable;
+  //FDTable1.CreateTable;
 
+end;
+
+procedure TfxMain.btnTableOpenClick(Sender: TObject);
+begin
+  FDTable1.Open();
 end;
 
 procedure TfxMain.DataSource1DataChange(Sender: TObject; Field: TField);
@@ -110,12 +118,12 @@ end;
 
 procedure TfxMain.FormShow(Sender: TObject);
 begin
-  RzEdit1.Text := ExtractFilePath(Application.ExeName);
+  edDbPath.Text := ExtractFilePath(Application.ExeName);
 end;
 
 procedure TfxMain.Log(Log: string);
 begin
-  RzMemo1.Lines.Add(Log);
+
 end;
 
 end.
